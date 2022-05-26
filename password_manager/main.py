@@ -1,7 +1,9 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
+import json
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -28,8 +30,13 @@ def generate():
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 def save():
-    is_ok = messagebox.askokcancel(title=website_entry.get(), message="Save?")
     error = False
+    new_data = {
+        website_entry.get(): {
+            "email": email_entry.get(),
+            "password": password_entry.get(),
+        }
+    }
     if email_entry.get() == "":
         messagebox.showinfo(title="OOPS!", message="no email")
         error = True
@@ -40,11 +47,33 @@ def save():
         messagebox.showinfo(title="OOPS!", message="no password")
         error = True
 
-    if is_ok and error == False:
-        with open("passwords.txt", "a") as f:
-            f.write(f"{website_entry.get()} | {email_entry.get()} | {password_entry.get()}\n")
-        website_entry.delete(0, END)
-        password_entry.delete(0, END)
+    if not error:
+        try:
+            with open("data.json", "r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            with open("data.json", "w") as file:
+                json.dump(new_data, file, indent=4)
+        else:
+            data.update(new_data)
+            with open("data.json", "w") as file:
+                json.dump(data, file, indent=4)
+        finally:
+            website_entry.delete(0, END)
+            password_entry.delete(0, END)
+
+
+def search():
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+            website = website_entry.get()
+            login = data[website]["email"]
+            password = data[website]["password"]
+        messagebox.showinfo(title=f"{website}", message=f"Login: {login}\nPassword: {password} ")
+
+    except (KeyError, FileNotFoundError):
+        messagebox.showinfo(title="OOPS!", message="There is no data for this website")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -61,9 +90,9 @@ canvas.grid(column=1, row=0)
 website_label = Label(text="Website:")
 website_label.grid(column=0, row=1, sticky=E)
 
-website_entry = Entry(width=35)
+website_entry = Entry(width=24)
 website_entry.focus()
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry.grid(column=1, row=1)
 
 email_label = Label(text="Email/Username:")
 email_label.grid(column=0, row=2, sticky=E)
@@ -77,10 +106,13 @@ password_label.grid(column=0, row=3, sticky=E)
 password_entry = Entry(width=24)
 password_entry.grid(column=1, row=3)
 
-generate_button = Button(text="Generate", command=generate)
+generate_button = Button(text="Generate", width=6, command=generate)
 generate_button.grid(column=2, row=3)
 
 add_button = Button(text="Add", width=33, command=save)
 add_button.grid(column=1, row=4, columnspan=2)
+
+search_button = Button(text="Search", width=6, command=search)
+search_button.grid(column=2, row=1)
 
 window.mainloop()
