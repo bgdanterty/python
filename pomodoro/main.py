@@ -1,5 +1,6 @@
 from tkinter import *
 import math
+
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
 RED = "#e7305b"
@@ -12,17 +13,19 @@ LONG_BREAK_MIN = 20
 reps = 0
 timer = None
 
-# ---------------------------- TIMER RESET ------------------------------- # 
+
+# ---------------------------- TIMER RESET ------------------------------- #
 
 def reset():
     window.after_cancel(timer)
     checkmark_label.config(text="")
     timer_label.config(text="Timer", bg=YELLOW, fg=GREEN, font=(FONT_NAME, 60, "bold"))
     canvas.itemconfig(timer_text, text="00:00")
-    global  reps
+    global reps
     reps = 0
 
-# ---------------------------- TIMER MECHANISM ------------------------------- # 
+
+# ---------------------------- TIMER MECHANISM ------------------------------- #
 
 def start_timer():
     global reps
@@ -41,7 +44,8 @@ def start_timer():
         count_down(4)
         timer_label.config(text="RELAX", fg=GREEN)
 
-# ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
+
+# ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
 
 def count_down(count):
     count_min = math.floor(count / 60)
@@ -51,21 +55,21 @@ def count_down(count):
 
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
     if count > 0:
-        global  timer
+        global timer
         timer = window.after(1000, count_down, count - 1)
     else:
         start_timer()
         mark = ""
-        for _ in range(math.floor(reps/2)):
+        for _ in range(math.floor(reps / 2)):
             mark += "🔪"
-        checkmark_label.config(text= mark)
-        
+        checkmark_label.config(text=mark)
+
+
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
 window.title("Pomodoro")
 window.config(padx=100, pady=50, bg=YELLOW)
-
 
 canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
 image = PhotoImage(file="tomato.png")
@@ -84,6 +88,5 @@ start_button.grid(column=0, row=2)
 
 reset_button = Button(text='Reset', highlightthickness=0, command=reset)
 reset_button.grid(column=2, row=2)
-
 
 window.mainloop()
